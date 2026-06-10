@@ -6,8 +6,8 @@ Portuguese/Mandarin + Brazilian Portuguese speaker):
 | Message language | Bot reply (threaded under the message) |
 | --- | --- |
 | English | *(silent)* |
-| Portuguese | 🇬🇧 English translation + 🔊 pronunciation guide ("TOO-doo BAYNG") |
-| Anything else | 🇬🇧 English + 🇧🇷 Portuguese translations |
+| Portuguese | 🇺🇸 English translation + 🔊 pronunciation guide ("TOO-doo BAYNG") |
+| Anything else | 🇺🇸 English + 🇧🇷 Portuguese translations |
 | ...with Chinese characters | **wǒmen qù chīfàn ba** tone-marked pinyin on top |
 
 One Claude Haiku call per message does detection + everything. ~$10–18/month at

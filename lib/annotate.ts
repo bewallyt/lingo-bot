@@ -11,7 +11,8 @@ const AnnotationSchema = z.object({
   skip: z.boolean(),
   translations: z.object({
     en: z.string().nullable(),
-    pt: z.string().nullable()
+    pt: z.string().nullable(),
+    zh: z.string().nullable()
   }),
   pronunciation_guide: z.string().nullable(),
   pinyin: z.string().nullable()
@@ -31,27 +32,31 @@ CLASSIFICATION RULES
 2. If the message is Portuguese: detected_language="pt", skip=false,
    language_name="Portuguese".
    - translations.en: natural English translation.
+   - translations.zh: natural simplified Chinese (zh-Hans) translation.
+   - pinyin: tone-marked Hanyu Pinyin of that Chinese TRANSLATION.
    - pronunciation_guide: how an American English speaker would sound out the
      ORIGINAL Portuguese, using Brazilian Portuguese (pt-BR) pronunciation.
      Write hyphenated English-readable syllables with CAPS on stressed
      syllables, e.g. "tudo bem" -> "TOO-doo BAYNG". Remember pt-BR specifics:
      final unstressed "de"/"te" sound like "jee"/"chee"; "ão" is a nasal "owng".
-   - translations.pt: null. pinyin: null.
+   - translations.pt: null.
 3. If the message is ANY other language (Chinese, Spanish, Japanese, French,
    anything that is not English or Portuguese): detected_language="other",
    skip=false. Set language_name to the language's English name (e.g.
    "Chinese", "Spanish").
    - translations.en: natural English translation.
    - translations.pt: natural Brazilian Portuguese (pt-BR) translation.
-   - pronunciation_guide: null.
-4. PINYIN: contains_chinese_characters is provided as a verified fact. Set
-   pinyin ONLY when the message's language is Chinese AND
-   contains_chinese_characters is true: tone-marked Hanyu Pinyin of the
-   original Chinese text (diacritic tone marks: nǐ hǎo, not ni3 hao3).
-   Resolve 多音字 from sentence context (行 xíng/háng, 得 de/dé/děi,
-   了 le/liǎo, 还 hái/huán). Accept traditional-character input and still
-   produce pinyin. For Japanese or any other language that borrows Han
-   characters, pinyin MUST be null.
+   - translations.zh: null. pronunciation_guide: null.
+4. PINYIN: always diacritic tone marks (nǐ hǎo, not ni3 hao3). Resolve 多音字
+   from sentence context (行 xíng/háng, 得 de/dé/děi, 了 le/liǎo, 还 hái/huán).
+   contains_chinese_characters is provided as a verified fact. Set pinyin in
+   exactly two cases:
+   a. The message's language is Chinese AND contains_chinese_characters is
+      true: pinyin of the ORIGINAL Chinese text. Accept traditional-character
+      input and still produce pinyin.
+   b. The message is Portuguese (rule 2): pinyin of translations.zh.
+   For Japanese or any other language that borrows Han characters, pinyin
+   MUST be null.
 5. Mixed-language messages: classify by the dominant non-English content. A
    message that is mostly English with one foreign word: treat as "en"/skip
    unless the foreign part is clearly the point of the message. If the message
@@ -69,12 +74,15 @@ CLASSIFICATION RULES
 EXAMPLES
 - "running late, sorry!!" -> en, skip=true
 - "tudo bem? chego em 10 min" -> pt, en="all good? I'll be there in 10 min",
+  zh="都好吗？我10分钟后到", pinyin="dōu hǎo ma? wǒ 10 fēnzhōng hòu dào",
   pronunciation_guide="TOO-doo BAYNG? SHEH-goo ayng dez mee-NOO-toos"
+- "ola irmao" -> pt, en="hey brother", zh="你好，兄弟",
+  pinyin="nǐ hǎo, xiōngdì", pronunciation_guide="OH-lah eer-MOWNG"
 - "我们去吃饭吧" (contains_chinese_characters=true) -> other,
   language_name="Chinese", en="Let's go eat", pt="Vamos comer",
   pinyin="wǒmen qù chīfàn ba"
 - "mañana no puedo" -> other, language_name="Spanish", en="I can't tomorrow",
-  pt="Amanhã não posso"
+  pt="Amanhã não posso", zh=null, pinyin=null
 - "ok 行" (contains_chinese_characters=true) -> other, language_name="Chinese",
   en="ok, sure", pt="ok, combinado", pinyin="ok xíng"
 - "今日は忙しい" (contains_chinese_characters=true) -> other,

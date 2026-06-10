@@ -54,9 +54,12 @@ export async function handleMessageAsync({
       logDecision({ ...base, outcome: 'silent-low-confidence', detectedLanguage: annotation.detected_language, languageName: annotation.language_name, confidence: annotation.confidence, hasCjk, llmMs: Date.now() - startedAt })
       return
     }
-    // Code-side guard: never show Mandarin readings for Japanese/other
-    // Han-borrowing languages, and never without actual Chinese characters.
-    if (annotation.pinyin && (!hasCjk || annotation.language_name !== 'Chinese')) {
+    // Code-side guard: pinyin belongs to either a Chinese original message or
+    // the zh translation of a Portuguese one — never to Japanese/other
+    // Han-borrowing languages.
+    const pinyinIsForOriginal = hasCjk && annotation.language_name === 'Chinese'
+    const pinyinIsForZhTranslation = annotation.detected_language === 'pt' && Boolean(annotation.translations.zh)
+    if (annotation.pinyin && !pinyinIsForOriginal && !pinyinIsForZhTranslation) {
       annotation = { ...annotation, pinyin: null }
     }
     // Schema-valid but content-empty counts as a failure, not a silent skip

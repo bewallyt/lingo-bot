@@ -13,6 +13,7 @@ oauth_config:
   scopes:
     bot:
       - chat:write # post threaded replies
+      - channels:history # public channel messages
       - groups:history # private channel messages
       - mpim:history # group-DM messages
       - im:history # DMs with the bot itself
@@ -21,6 +22,7 @@ settings:
   event_subscriptions:
     request_url: https://YOUR-APP.vercel.app/api/slack/events
     bot_events:
+      - message.channels
       - message.groups
       - message.mpim
       - message.im

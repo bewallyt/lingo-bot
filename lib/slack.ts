@@ -34,13 +34,20 @@ export function buildAnnotationMessage(annotation: Annotation): { text: string; 
   const pt = annotation.translations.pt ? defangSlackTokens(annotation.translations.pt) : null
 
   const blocks: Record<string, unknown>[] = []
-  if (annotation.pinyin) {
-    blocks.push({ type: 'section', text: { type: 'mrkdwn', text: `*${annotation.pinyin}*` } })
-  } else if (annotation.detected_language === 'other' && annotation.language_name) {
-    blocks.push(contextBlock(`_${annotation.language_name}_`))
+  if (annotation.detected_language === 'other') {
+    // Chinese original: pinyin headline; other languages: small label
+    if (annotation.pinyin) {
+      blocks.push({ type: 'section', text: { type: 'mrkdwn', text: `*${annotation.pinyin}*` } })
+    } else if (annotation.language_name) {
+      blocks.push(contextBlock(`_${annotation.language_name}_`))
+    }
   }
-  if (en) blocks.push(contextBlock(`:flag-gb: ${en}`))
+  if (en) blocks.push(contextBlock(`:flag-us: ${en}`))
   if (pt) blocks.push(contextBlock(`:flag-br: ${pt}`))
+  if (annotation.detected_language === 'pt' && annotation.translations.zh) {
+    const zhPinyin = annotation.pinyin ? ` (${annotation.pinyin})` : ''
+    blocks.push(contextBlock(`:cn: ${annotation.translations.zh}${zhPinyin}`))
+  }
   if (annotation.pronunciation_guide) {
     blocks.push(contextBlock(`:speaking_head_in_silhouette: ${annotation.pronunciation_guide}`))
   }
