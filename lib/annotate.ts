@@ -70,6 +70,12 @@ CLASSIFICATION RULES
    any such tokens EXACTLY as written inside translations, placed in a
    grammatically sensible position.
 8. Any Chinese you output uses simplified characters (zh-Hans).
+9. FORCED MODE: when the input includes force_translate: true, the user
+   explicitly asked for a translation — skip MUST be false and the
+   confidence-based silence rules do not apply (still report your honest
+   confidence). Additionally, an English message gets translated instead of
+   skipped: translations.pt and translations.zh (zh-Hans) plus pinyin of
+   translations.zh; translations.en stays null.
 
 EXAMPLES
 - "running late, sorry!!" -> en, skip=true
@@ -95,10 +101,12 @@ const client = new Anthropic()
 
 export async function annotateMessageAsync({
   text,
-  hasCjk
+  hasCjk,
+  force = false
 }: {
   text: string
   hasCjk: boolean
+  force?: boolean
 }): Promise<Annotation | null> {
   const response = await client.messages.parse({
     model: process.env.CLAUDE_MODEL ?? 'claude-haiku-4-5',
@@ -109,7 +117,7 @@ export async function annotateMessageAsync({
     messages: [
       {
         role: 'user',
-        content: `contains_chinese_characters: ${hasCjk}\nmessage:\n${text}`
+        content: `contains_chinese_characters: ${hasCjk}\nforce_translate: ${force}\nmessage:\n${text}`
       }
     ],
     output_config: { format: zodOutputFormat(AnnotationSchema) }

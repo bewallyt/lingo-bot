@@ -1,6 +1,6 @@
 import { waitUntil } from '@vercel/functions'
 import { getSkipReason, type SlackMessageEvent } from '../../lib/filters.js'
-import { handleMessageAsync } from '../../lib/handle-message.js'
+import { handleMentionAsync, handleMessageAsync } from '../../lib/handle-message.js'
 import { verifySlackSignature } from '../../lib/verify-slack.js'
 
 type SlackEnvelope = {
@@ -47,6 +47,12 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   if (alreadySeen(envelope.event_id)) return new Response('', { status: 200 })
+
+  // Explicit "@lingo" -> translate the previous/parent message on demand
+  if (envelope.event.type === 'app_mention') {
+    waitUntil(handleMentionAsync({ event: envelope.event, eventId: envelope.event_id }))
+    return new Response('', { status: 200 })
+  }
 
   const skipReason = getSkipReason(envelope.event)
   if (skipReason) {

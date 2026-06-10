@@ -1,0 +1,48 @@
+{
+    "display_information": {
+        "name": "Lingo Bot",
+        "description": "Auto-translates Portuguese/Chinese/anything-else messages in-thread",
+        "background_color": "#d94545",
+        "long_description": "- \"tudo bem? chego em 10 min\" → Portuguese: English translation + pronunciation guide (\"TOO-doo BAYNG? SHEH-goo ayng dez mee-NOO-toos\")\r\n- \"我们去吃饭吧\" → Chinese: pinyin \"wǒmen qù chīfàn ba\" + English + Portuguese\r\n- \"running late, sorry!!\" → English: skipped, bot stays silent\r\n- \"今日は東京で忙しい\" → Japanese: English + Portuguese, and pinyin correctly null (the Japanese-kanji trap the adversarial reviewer caught works)"
+    },
+    "features": {
+        "app_home": {
+            "messages_tab_enabled": true,
+            "messages_tab_read_only_enabled": false
+        },
+        "bot_user": {
+            "display_name": "lingo",
+            "always_online": true
+        }
+    },
+    "oauth_config": {
+        "scopes": {
+            "bot": [
+                "app_mentions:read",
+                "chat:write",
+                "channels:history",
+                "groups:history",
+                "mpim:history",
+                "im:history",
+                "reactions:write"
+            ]
+        },
+        "pkce_enabled": false
+    },
+    "settings": {
+        "event_subscriptions": {
+            "request_url": "https://slack-translate-eta.vercel.app/api/slack/events",
+            "bot_events": [
+                "app_mention",
+                "message.channels",
+                "message.groups",
+                "message.im",
+                "message.mpim"
+            ]
+        },
+        "org_deploy_enabled": false,
+        "socket_mode_enabled": false,
+        "token_rotation_enabled": false,
+        "is_mcp_enabled": false
+    }
+}
